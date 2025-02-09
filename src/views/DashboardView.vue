@@ -28,7 +28,7 @@ export default {
   },
   computed: {
     canCrypt: function(){
-      return this.cryptor?.symKey;
+      return this.cryptor?.symKey?.key;
     },
     canDerive: function(){
       return this.editSymKey?.keyPair?.private && this.editSymKey?.keyPair?.extPublic;
