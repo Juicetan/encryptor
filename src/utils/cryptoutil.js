@@ -17,6 +17,14 @@ export default {
     }
     return bytes.buffer;
   },
+  base64Decode: function(str){
+    return decodeURIComponent(Array.prototype.map.call(atob(str), function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+  },
+  base64Encode: function(str){
+    return btoa(str);
+  },
   async generateKeyHash(key){
     if(!key){
       console.warn('> Missing symmetric key');

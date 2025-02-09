@@ -10,6 +10,22 @@ class SymmetricKey{
     this.key = '';
     this.keyHash = '';
   }
+  async getCryptoKey(){
+    if(!this.key){
+      return;
+    }
+
+    return window.crypto.subtle.importKey(
+      'raw',
+      CryptoUtil.base64ToBuffer(this.key),
+      {
+        name: 'AES-GCM',
+        length: 256
+      },
+      true,
+      ['encrypt', 'decrypt']
+    );
+  }
   async generateNewKeyPair(){
     const keyPair = await window.crypto.subtle.generateKey(
       {

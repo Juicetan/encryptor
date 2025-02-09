@@ -25,8 +25,8 @@ export default {
     }
   },
   computed: {
-    symkey: function(){
-      return null;
+    canCrypt: function(){
+      return this.cryptor?.symKey;
     },
     canDerive: function(){
       return this.editSymKey?.keyPair?.private && this.editSymKey?.keyPair?.extPublic;
@@ -42,6 +42,7 @@ export default {
   methods: {
     init: function(){
       this.editSymKey = new SymmetricKey();
+      this.cryptor = new Cryptor();
     },
     generateKeyPair: async function(){
       await this.editSymKey.generateNewKeyPair();
@@ -54,6 +55,13 @@ export default {
 
       await this.editSymKey.deriveSymKey();
       App.toast('Derived Secret Key');
+    },
+    useKey: function(){
+      this.cryptor.symKey = this.editSymKey;
+    },
+    editKey: function(){
+      this.editSymKey = this.cryptor.symKey;
+      this.cryptor.symKey = null;
     }
   },
 }
@@ -63,8 +71,12 @@ export default {
   <div class="dashboard-page">
     <div class="header">
       <img src="@/assets/images/appicon.png" alt="" class="icon">
+      <div class="key-display" @click="editKey" v-if="canCrypt">
+        <i class="fa fa-key"></i>
+        <span>{{ this.cryptor.symKey.keyHash }}</span>
+      </div>
     </div>
-    <div class="encryption-wrap" v-if="symkey">
+    <div class="encryption-wrap" v-if="canCrypt">
       <div class="unencrypted crypt-blk">
         <div class="title">
           <span>Unencrypted</span>
@@ -90,18 +102,18 @@ export default {
           <div class="use-btn newkeypair" @click="generateKeyPair">Create New Key Pair</div>
         </div>
         <div class="private form-group">
-          <div class="form-label">Private Key Pair</div>
-          <CopyInput v-model="editSymKey.keyPair.private" :copyable="false"/>
+          <div class="form-label">Private Key</div>
+          <CopyInput v-model="editSymKey.keyPair.private" :copyable="false" label="Private Key"/>
         </div>
         <div class="public form-group">
-          <div class="form-label">Public Key Pair</div>
-          <CopyInput v-model="editSymKey.keyPair.public" label="Public Key Pair"/>
+          <div class="form-label">Public Key</div>
+          <CopyInput v-model="editSymKey.keyPair.public" label="Public Key"/>
         </div>
-        <div class="extpublic form-group">
-          <div class="form-label">External Public Key</div>
-          <CopyInput v-model="editSymKey.keyPair.extPublic" label="3rd Party Public Key"/>
-          <div class="use-btn" :class="[canDerive?'':'disabled']" @click="deriveSecretKey">Derive Symmetric Key</div>
-        </div>
+      </div>
+      <div class="extpublic form-group" v-if="useKeyExchange && editSymKey">
+        <div class="form-label">External Public Key</div>
+        <CopyInput v-model="editSymKey.keyPair.extPublic" label="3rd Party Public Key"/>
+        <div class="use-btn" :class="[canDerive?'':'disabled']" @click="deriveSecretKey">Derive Symmetric Key</div>
       </div>
       <div class="key form-group" v-if="editSymKey">
         <div class="form-label">Secret Key</div>
@@ -111,7 +123,7 @@ export default {
         <div class="form-label">Secret Key Hash</div>
         <CopyInput v-model="editSymKey.keyHash" label="Secret Key hash" :isEditable="false"/>
       </div>
-      <div class="use-btn disabled">Use Key</div>
+      <div class="use-btn" :class="[editSymKey?.key?'':'disabled']" @click="useKey">Use Key</div>
     </div>
   </div>
 </template>
@@ -138,10 +150,25 @@ export default {
           width: 100px;
         }
       }
-      span{
-        padding: 0 10px;
-        font-size: 24px;
-      }
+      .key-display{
+        @include clickable;
+        font-size: 10px;
+        max-width: 200px;
+        margin-left: auto;
+        margin-right: auto;
+        word-break: break-word;
+        i,span{
+          display: inline;
+          vertical-align: middle;
+        }
+        i{
+          margin-right: 4px;
+          font-size: 16px;
+        }
+        &:hover{
+          background-color: whitesmoke;
+        }
+      } 
     }
     .copy-input{
       display: inline-block;
@@ -254,6 +281,7 @@ export default {
         }
       }
       .use-btn{
+        @include clickable;
         display: inline-block;
         color: white;
         background-color: $color-brightblue;
