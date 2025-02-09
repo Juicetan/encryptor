@@ -1,0 +1,35 @@
+{
+  "name": "Encryptor",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test:unit": "vitest",
+    "test:e2e": "start-server-and-test preview http://localhost:4173 'cypress run --e2e'",
+    "test:e2e:dev": "start-server-and-test 'vite dev --port 4173' http://localhost:4173 'cypress open --e2e'",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
+  },
+  "dependencies": {
+    "clipboard": "^2.0.11",
+    "mitt": "^3.0.1",
+    "pinia": "^2.3.1",
+    "toastify-js": "^1.12.0",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vue/test-utils": "^2.4.6",
+    "cypress": "^14.0.1",
+    "eslint": "^9.19.0",
+    "eslint-plugin-cypress": "^4.1.0",
+    "eslint-plugin-vue": "^9.32.0",
+    "jsdom": "^26.0.0",
+    "sass": "^1.83.4",
+    "start-server-and-test": "^2.0.10",
+    "vite": "^6.0.11",
+    "vitest": "^3.0.4"
+  }
+}

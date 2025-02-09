@@ -1,0 +1,216 @@
+@mixin noSelect{
+  touch-callout: none;
+  user-select:none;
+  cursor: default;
+}
+
+@mixin clickable{
+  @include noSelect;
+  cursor: pointer;
+}
+
+@mixin movable{
+  @include noSelect;
+  cursor: move;
+}
+
+@mixin card{
+  background-color: white;
+  border: 1px solid #e5e5e5;
+  border-bottom: none;
+  box-shadow: 0 2px 2px rgba(black,0.24);
+  &:hover{
+    box-shadow: 0 2px 5px rgba(black,0.24);
+  }
+}
+
+@mixin miniscroll($width:5px,$height:5px){
+  -webkit-overflow-scrolling: touch;
+  &::-webkit-scrollbar-track{
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    border-radius: 10px;
+    background-color: #F5F5F5;
+  }
+  &::-webkit-scrollbar{
+    height: $height;
+    width: $width;
+    background-color: #F5F5F5;
+  }
+  &::-webkit-scrollbar-thumb{
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    background-color: rgb(85,85,85);
+    background-color: rgba(85,85,85,0.25);
+  }
+}
+
+@mixin lineClamp($numLines,$lineSize:20px){
+  position: relative;
+  max-height: ($numLines * $lineSize);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: $numLines;
+  -webkit-box-orient: vertical;
+  &:after{
+    display: none;
+  }
+}
+
+@mixin clearfix{
+  &:after{
+    content: "";
+    visibility: hidden;
+    display: block;
+    height: 0;
+    clear: both;
+  }
+}
+
+@mixin formGroup{
+  .form-group{
+    margin-bottom: 32px;
+    .form-label{
+      font-weight: bold;
+      font-size: 14px;
+      margin-bottom: 12px;
+      &.required{
+        &:after{
+          content: '*';
+          display: inline-block;
+          color: #B32013;
+        }
+      }
+    }
+    input.form-value,textarea.form-value,select.form-value{
+      box-sizing: border-box;
+      width: 100%;
+      padding: 8px 12px 8px 12px;
+      border: none;
+      border-bottom: 1px solid #ABB1BC;
+      background-color: #F2F3F5;
+      font-size: 14px;
+      vertical-align: middle;
+      outline: none;
+      transition: border-bottom 0.2s ease;
+      &:focus{
+        border-bottom: 1px solid #0851DF;
+      }
+    }
+    .form-value{
+      position: relative;
+      .image-field{
+        display: inline-block;
+      }
+      .rtf-editor{
+        .ql-toolbar{
+          border: none;
+          padding: 0 10px 2px 0;
+        }
+        .ql-container{
+          padding: 8px 12px 8px 12px;
+          border: none;
+          border-bottom: 1px solid #ABB1BC;
+          background-color: #F2F3F5;
+          font-size: 14px;
+          vertical-align: middle;
+          .ql-editor{
+            padding: 0;
+            min-height: 60px;
+            &:after{
+              content: '';
+              position: absolute;
+              bottom: 0;
+              left: 0;
+              right: 0;
+              height: 0;
+              transition: height 0.1s ease;
+              background-color: #0851DF;
+            }
+            &:focus{
+              &:after{
+                height: 1px;
+              }
+            }
+          }
+        }
+        .clear-all{
+          height: 36px;
+          line-height: 36px;
+        }
+        &.rtl{
+          .ql-editor{
+            padding-right: 15px;
+          }
+        }
+        &.textfield{
+          .ql-container{
+            .ql-editor{
+              min-height: auto;
+            }
+          }
+        }
+      }
+      .datetime-picker{
+        input{
+          border-radius: 0;
+        }
+      }
+      input,textarea,select{
+        box-sizing: border-box;
+        max-width: 100%;
+        height: auto;
+        line-height: normal;
+        padding: 8px 12px 8px 12px;
+        border: none;
+        border-bottom: 1px solid #ABB1BC;
+        background-color: #F2F3F5;
+        font-size: 14px;
+        vertical-align: middle;
+        outline: none;
+        transition: border-bottom 0.2s ease;
+        &:focus{
+          border-bottom: 1px solid #0851DF;
+        }
+        &.inline-val{
+          display: inline-block;
+          vertical-align: middle;
+
+        }
+      }
+      select{
+        cursor: pointer;
+      }
+      .select-group{
+        position: relative;
+        display: inline-block;
+        margin-left: 10px;
+        select{
+          padding-right: 25px;
+        }
+        .select-expand-icon{
+          position: absolute;
+          right: 0;
+          top: 0;
+          padding-right: 20px;
+          padding-top: 8px;
+          pointer-events: none;
+          font-size: 20px;
+          background-color: #F2F3F5;
+          z-index: 2;
+        }
+      }
+    }
+    .form-descriptor{
+      margin-top: 6px;
+      font-size: 12px;
+      color: #37425E;
+      .error{
+        color: #B32013;
+      }
+    }
+    textarea{
+      min-width: 100%;
+      max-width: 100%;
+    }
+  }
+}
