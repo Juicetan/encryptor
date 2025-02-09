@@ -1,4 +1,7 @@
 <script>
+import SymmetricKey from '../models/symmetric-key';
+import Cryptor from '../models/cryptor';
+
 import LoadingBar from '../components/LoadingBar.vue';
 import CopyInput from '../components/CopyInput.vue';
 import ToggleSwitch from '../components/ToggleSwitch.vue';
@@ -11,19 +14,40 @@ export default {
   },
   beforeRouteEnter: function(to, from, next){
     next(vm => {
-      // Do some initialization
+      vm.init();
     })
   },
   data(){
     return {
+      useKeyExchange: false,
+      editSymKey: null,
+      cryptor: null,
     }
   },
   computed: {
     symkey: function(){
       return null;
+    },
+    canDerive: function(){
+      return this.editSymKey?.keyPair?.private && this.editSymKey?.keyPair?.extPublic;
     }
   },
   methods: {
+    init: function(){
+      this.editSymKey = new SymmetricKey();
+    },
+    generateKeyPair: async function(){
+      await this.editSymKey.generateNewKeyPair();
+      App.toast('Generated new key pair')
+    },
+    deriveSecretKey: async function(){
+      if(!this.canDerive){
+        return;
+      }
+
+      await this.editSymKey.deriveSymKey();
+      App.toast('Derived Secret Key');
+    }
   },
 }
 </script>
@@ -52,25 +76,29 @@ export default {
     <div class="key-setup" v-else>
       <div class="key-exchange-toggle form-group">
         <div class="form-label">Key Exchange</div>
-        <ToggleSwitch/>
+        <ToggleSwitch v-model="useKeyExchange"/>
       </div>
-      <div class="key-exchange">
+      <div class="key-exchange" v-if="useKeyExchange && editSymKey">
         <div class="newkeypair">
-          <div class="use-btn newkeypair">Create New Key Pair</div>
+          <div class="use-btn newkeypair" @click="generateKeyPair">Create New Key Pair</div>
         </div>
         <div class="private form-group">
           <div class="form-label">Private Key Pair</div>
-          <CopyInput/>
+          <CopyInput v-model="editSymKey.keyPair.private" :copyable="false"/>
         </div>
         <div class="public form-group">
           <div class="form-label">Public Key Pair</div>
-          <CopyInput/>
-          <div class="use-btn disabled">Resolve Symmetric Key</div>
+          <CopyInput v-model="editSymKey.keyPair.public"/>
+        </div>
+        <div class="extpublic form-group">
+          <div class="form-label">External Public Key</div>
+          <CopyInput v-model="editSymKey.keyPair.extPublic"/>
+          <div class="use-btn" :class="[canDerive?'':'disabled']" @click="deriveSecretKey">Derive Symmetric Key</div>
         </div>
       </div>
-      <div class="key form-group">
-        <div class="form-label">Symmetric Key</div>
-        <CopyInput/>
+      <div class="key form-group" v-if="editSymKey">
+        <div class="form-label">Symmetric Secret Key</div>
+        <CopyInput v-model="editSymKey.key"/>
         <div class="use-btn disabled">Use Key</div>
       </div>
     </div>
