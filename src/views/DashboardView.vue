@@ -55,6 +55,9 @@ export default {
         <ToggleSwitch/>
       </div>
       <div class="key-exchange">
+        <div class="newkeypair">
+          <div class="use-btn newkeypair">Create New Key Pair</div>
+        </div>
         <div class="private form-group">
           <div class="form-label">Private Key Pair</div>
           <CopyInput/>
@@ -62,13 +65,13 @@ export default {
         <div class="public form-group">
           <div class="form-label">Public Key Pair</div>
           <CopyInput/>
-          <div class="use-btn">Generate Symmetric Key</div>
+          <div class="use-btn disabled">Resolve Symmetric Key</div>
         </div>
       </div>
       <div class="key form-group">
         <div class="form-label">Symmetric Key</div>
         <CopyInput/>
-        <div class="use-btn">Use Key</div>
+        <div class="use-btn disabled">Use Key</div>
       </div>
     </div>
   </div>
@@ -211,6 +214,17 @@ export default {
         padding: 7px 10px;
         border-radius: 5px;
         margin-top: 15px;
+        &.disabled{
+          color: gray;
+          background-color: lightgray;
+        }
+      }
+      .newkeypair{
+        text-align: right;
+        .use-btn{
+          margin-bottom: 15px;
+          margin-top: 0;
+        }
       }
     }
   }
