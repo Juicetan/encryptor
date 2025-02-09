@@ -16,5 +16,19 @@ export default {
         bytes[i] = binaryString.charCodeAt(i);
     }
     return bytes.buffer;
+  },
+  async generateKeyHash(key){
+    if(!key){
+      console.warn('> Missing symmetric key');
+      return;
+    }
+    
+    const encoder = new TextEncoder();
+    const data = encoder.encode(key);
+    const hashBuffer = await window.crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+    
+    return hashHex;
   }
 }

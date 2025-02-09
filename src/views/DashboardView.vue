@@ -32,6 +32,13 @@ export default {
       return this.editSymKey?.keyPair?.private && this.editSymKey?.keyPair?.extPublic;
     }
   },
+  watch: {
+    'editSymKey.key': function(newVal, oldVal){
+      if(newVal !== oldVal){
+        this.editSymKey.updateKeyHash();
+      }
+    }
+  },
   methods: {
     init: function(){
       this.editSymKey = new SymmetricKey();
@@ -63,14 +70,14 @@ export default {
           <span>Unencrypted</span>
           <div class="encrypt crypt-btn">Encrypt</div>
         </div>
-        <CopyInput mode="area"/>
+        <CopyInput mode="area" label="Unencrypted text"/>
       </div>
       <div class="encrypted crypt-blk">
         <div class="title">
           <span>Encrypted</span>
           <div class="decrypt crypt-btn">Decrypt</div>
         </div>
-        <CopyInput mode="area"/>
+        <CopyInput mode="area" label="Encrypted text"/>
       </div>
     </div>
     <div class="key-setup" v-else>
@@ -88,19 +95,23 @@ export default {
         </div>
         <div class="public form-group">
           <div class="form-label">Public Key Pair</div>
-          <CopyInput v-model="editSymKey.keyPair.public"/>
+          <CopyInput v-model="editSymKey.keyPair.public" label="Public Key Pair"/>
         </div>
         <div class="extpublic form-group">
           <div class="form-label">External Public Key</div>
-          <CopyInput v-model="editSymKey.keyPair.extPublic"/>
+          <CopyInput v-model="editSymKey.keyPair.extPublic" label="3rd Party Public Key"/>
           <div class="use-btn" :class="[canDerive?'':'disabled']" @click="deriveSecretKey">Derive Symmetric Key</div>
         </div>
       </div>
       <div class="key form-group" v-if="editSymKey">
-        <div class="form-label">Symmetric Secret Key</div>
-        <CopyInput v-model="editSymKey.key"/>
-        <div class="use-btn disabled">Use Key</div>
+        <div class="form-label">Secret Key</div>
+        <CopyInput v-model="editSymKey.key" label="Secret Key"/>
       </div>
+      <div class="keyhash form-group" v-if="editSymKey">
+        <div class="form-label">Secret Key Hash</div>
+        <CopyInput v-model="editSymKey.keyHash" label="Secret Key hash" :isEditable="false"/>
+      </div>
+      <div class="use-btn disabled">Use Key</div>
     </div>
   </div>
 </template>
@@ -234,6 +245,13 @@ export default {
         .form-group:last-of-type{
           margin-bottom: 0;
         }
+        .private,.public{
+          .copy-input{
+            input{
+              background-color: whitesmoke;
+            }
+          }
+        }
       }
       .use-btn{
         display: inline-block;
@@ -252,6 +270,20 @@ export default {
         .use-btn{
           margin-bottom: 15px;
           margin-top: 0;
+        }
+      }
+      .keyhash{
+        margin-top: -22px;
+        margin-bottom: 0;
+        border: 1px solid lightgray;
+        padding: 10px;
+        background-color: whitesmoke;
+        .form-label{
+          font-weight: normal;
+        }
+        input{
+          background-color: whitesmoke;
+          outline: none;
         }
       }
     }

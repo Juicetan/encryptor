@@ -8,6 +8,7 @@ class SymmetricKey{
       extPublic: ''
     };
     this.key = '';
+    this.keyHash = '';
   }
   async generateNewKeyPair(){
     const keyPair = await window.crypto.subtle.generateKey(
@@ -24,6 +25,10 @@ class SymmetricKey{
     this.keyPair.private = CryptoUtil.bufferToBase64(
       await window.crypto.subtle.exportKey('pkcs8', keyPair.privateKey)
     );
+
+    if(this.keyPair?.extPublic){
+      this.deriveSymKey();
+    }
   }
   async deriveSymKey(){
     if(!this.keyPair.private || !this.keyPair.extPublic){
@@ -69,6 +74,10 @@ class SymmetricKey{
     this.key = CryptoUtil.bufferToBase64(
       await window.crypto.subtle.exportKey('raw', secretKey)
     );
+    await this.updateKeyHash();
+  }
+  async updateKeyHash(){
+    this.keyHash = await CryptoUtil.generateKeyHash(this.key);
   }
 }
 
