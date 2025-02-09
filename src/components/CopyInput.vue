@@ -16,6 +16,14 @@ export default {
     overrideUi: {
       type: Boolean,
       default: false
+    },
+    isEditable: {
+      type: Boolean,
+      default: true
+    },
+    copyable: {
+      type: Boolean,
+      default: true
     }
   },
   data: function(){
@@ -49,6 +57,9 @@ export default {
       this.clip.on('success', function(){
         App.toast('Copied '+ (view.label || view.modelValue));
       });
+    },
+    updateVal: function(evt){
+      this.$emit('update:modelValue', evt.target.value);
     }
   },
   mounted: function(){
@@ -60,9 +71,9 @@ export default {
 </script>
 
 <template>
-  <div class="copy-input" :class="[overrideUi?'custom-ui':'',mode]">
-    <input type="text" v-bind:value="modelValue" readonly=readonly ref="value" v-if="isSingle">
-    <textarea v-bind:value="modelValue" ref="value" v-else></textarea>
+  <div class="copy-input" :class="[overrideUi?'custom-ui':'',mode,copyable?'':'no-copy']">
+    <input type="text" :value="modelValue" @input="updateVal" :readonly="!isEditable" ref="value" v-if="isSingle">
+    <textarea v-bind:value="modelValue" @input="updateVal" ref="value" :readonly="!isEditable" v-else></textarea>
     <span class="modifier" ref="modifier" @click.stop="">
       <slot>
         <i class="fa fa-copy"></i>
@@ -101,6 +112,18 @@ export default {
     border-radius: 0 5px 5px 0;
     &:hover{
       background-color: color.adjust($color-brightblue, $lightness: 5%);
+    }
+  }
+  &.no-copy{
+    input{
+      width: 100%;
+      border-radius: 5px;
+    }
+    .modifier{
+      visibility: hidden;
+      width: 1px;
+      height: 1px;
+      position: absolute;
     }
   }
   &.area{
