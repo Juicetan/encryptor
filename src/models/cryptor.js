@@ -12,25 +12,25 @@ class Cryptor{
         name: 'AES-GCM',
         iv: iv
       },
-      this.symKey.getCryptoKey(),
+      await this.symKey.getCryptoKey(),
       encodedPlaintext
     );
 
     return CryptoUtil.base64Encode(JSON.stringify({
-      iv: iv,
+      iv: CryptoUtil.bufferToBase64(iv),
       cipherText: CryptoUtil.bufferToBase64(cipherTextBuffer)
     }));
   }
   async decrypt(str){
     const inputObj = JSON.parse(CryptoUtil.base64Decode(str));
-    const iv = inputObj.iv;
+    const iv = CryptoUtil.base64ToBuffer(inputObj.iv);
     const cipherTextBuffer = CryptoUtil.base64ToBuffer(inputObj.cipherText);
     const plainTextBuffer = await window.crypto.subtle.decrypt(
       {
         name: 'AES-GCM',
         iv: iv
       },
-      this.symKey.getCryptoKey(),
+      await this.symKey.getCryptoKey(),
       cipherTextBuffer
     )
 

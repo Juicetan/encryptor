@@ -22,6 +22,8 @@ export default {
       useKeyExchange: false,
       editSymKey: null,
       cryptor: null,
+      encryptedStr: '',
+      decryptedStr: '',
     }
   },
   computed: {
@@ -62,6 +64,18 @@ export default {
     editKey: function(){
       this.editSymKey = this.cryptor.symKey;
       this.cryptor.symKey = null;
+    },
+    encrypt: async function(){
+      if(!this.decryptedStr){
+        return;
+      }
+      this.encryptedStr = await this.cryptor.encrypt(this.decryptedStr);
+    },
+    decrypt: async function(){
+      if(!this.encryptedStr){
+        return;
+      }
+      this.decryptedStr = await this.cryptor.decrypt(this.encryptedStr);
     }
   },
 }
@@ -80,16 +94,16 @@ export default {
       <div class="unencrypted crypt-blk">
         <div class="title">
           <span>Unencrypted</span>
-          <div class="encrypt crypt-btn">Encrypt</div>
+          <div class="encrypt crypt-btn" @click="encrypt">Encrypt</div>
         </div>
-        <CopyInput mode="area" label="Unencrypted text"/>
+        <CopyInput mode="area" label="Unencrypted text" v-model="decryptedStr"/>
       </div>
       <div class="encrypted crypt-blk">
         <div class="title">
           <span>Encrypted</span>
-          <div class="decrypt crypt-btn">Decrypt</div>
+          <div class="decrypt crypt-btn" @click="decrypt">Decrypt</div>
         </div>
-        <CopyInput mode="area" label="Encrypted text"/>
+        <CopyInput mode="area" label="Encrypted text" v-model="encryptedStr"/>
       </div>
     </div>
     <div class="key-setup" v-else>
