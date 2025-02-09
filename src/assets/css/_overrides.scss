@@ -7,6 +7,12 @@
   transition-duration: .25s;
 }
 
+.fade-leave-active{
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+
 .fade-enter, .fade-leave-active {
   opacity: 0;
 }
