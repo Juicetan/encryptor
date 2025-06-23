@@ -29,6 +29,14 @@ export default class SocketConnection{
     this.socket.on('ready', () => {
       this._deferredChatRoomReady.resolve();
     });
+
+    this.socket.on('room-full', () => {
+      console.log('> room full')
+    });
+  }
+
+  get isConnected(){
+    return this.status === 'open';
   }
 
   get status(){
@@ -119,7 +127,7 @@ export default class SocketConnection{
   }
 
   send(msg){
-    if(this.status === 'open'){
+    if(this.isConnected){
       this.dataChannel?.send(msg);
     }else{
       console.log('> connection not ready');
