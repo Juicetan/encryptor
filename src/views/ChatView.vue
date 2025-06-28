@@ -58,15 +58,15 @@ export default {
         return;
       }
       this.connection = new ChatConnection();
+      this.connection.evt.on(ChatConnection.events.INVALIDJOIN, (roomID) => {
+        App.toast(`Cannot join chat: invalid/expired room ID [${roomID}]`, 'error');
+      });
       this.connection.connect(this.joinKey);
       await this.connection.ready;
       console.log('> fully encrypted', this.connection.isSecured);
       this.mode = null;
       this.connection.evt.on(ChatConnection.events.MESSAGE, (chatMsg) => {
         this.messages.push(chatMsg);
-      });
-      this.connection.evt.on(ChatConnection.events.INVALIDJOIN, (roomID) => {
-        App.toast(`Cannot join chat: invalid/expired room ID [${roomID}]`, 'error');
       });
     },
     reset: function(){
