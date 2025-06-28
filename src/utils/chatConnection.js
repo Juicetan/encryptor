@@ -267,12 +267,12 @@ export default class ChatConnection{
   }
 
   async send(msg){
-    if(msg instanceof ChatMessage){
+    if(!(msg instanceof ChatMessage)){
       throw new Error('type mismatch: msg must be an instance of ChatMessage');
     }
 
     if(this.isConnected && this.isSecured){
-      const plainText = msg.toJSON();
+      const plainText = msg.toJSONStr();
       const cipherText = await this.cryptor.encrypt(plainText);
       this.dataChannel?.send(cipherText);
     } else{
