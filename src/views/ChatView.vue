@@ -25,6 +25,7 @@ export default {
       connection: null,
       messages: [],
       msgStr: '',
+      modalStatus: '',
       joinKey: null,
       mode: null, //create, join
     }
@@ -68,8 +69,9 @@ export default {
       this.connection.evt.on(ChatConnection.events.RESOLVEFAILED, () => {
         App.toast('Failed to resolve connection', 'error');
       });
-      
+
       this.connection.connect(this.joinKey);
+      this.modalStatus = 'Attempting to resolve connection...';
       await this.connection.ready;
       console.log('> fully encrypted', this.connection.isSecured);
       this.mode = null;
@@ -84,6 +86,7 @@ export default {
       this.joinKey = null;
       this.messages = [];
       this.msgStr = '';
+      this.modalStatus = '';
     },
     send: function(){
       const outgoingMsg = new ChatMessage({
@@ -137,6 +140,7 @@ export default {
           <div class="mode join modal-con" v-else-if="mode === 'join'">
             <div class="label">Room ID</div>
             <input class="modal-input" type="text" placeholder="Enter Room ID" v-model="joinKey"/>
+            <div class="modal-status">{{ modalStatus }}</div>
             <div class="join con-btn" :class="[joinKey?'':'disabled']" @click="connect">Join</div>
             <div class="back-btn con-btn secondary" @click="reset">&lt; Back</div>
           </div>
