@@ -12,7 +12,11 @@ export default {
   },
   beforeRouteEnter: function(to, from, next){
     next(vm => {
-
+      console.log('> uhoh', vm.$route);
+      if(vm.$route?.params?.roomID){
+        vm.joinKey = vm.$route.params.roomID;
+        vm.mode = 'join';
+      }
     })
   },
   data: function(){

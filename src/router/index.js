@@ -27,6 +27,7 @@ const router = createRouter({
     /* !!-- routes start --!! */
     {
       path: '/chat',
+      alias: '/chat/join/:roomID',
       name: 'chatView',
       component: ChatView,
       meta: {
