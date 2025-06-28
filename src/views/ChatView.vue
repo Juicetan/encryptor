@@ -1,28 +1,39 @@
 <script>
-import SocketConnection from '../utils/socketCon';
+import ChatConnection from '../utils/chatConnection';
 
 export default {
   components: {
   },
   beforeRouteEnter: function(to, from, next){
     next(vm => {
-      vm.connect();
+      // vm.connect();
     })
   },
   data: function(){
     return {
       connection: null,
-      dataChannel: null,
+      messages: []
+    }
+  },
+  computed: {
+    reversedMsgs: function(){
+      return this.messages.slice().reverse();
     }
   },
   methods: {
     createRoom: function(){
-      this.connection = new SocketConnection();
-      this.connection.createRoom('testroom6');
+      this.connection = new ChatConnection();
+      this.connection.createRoom('testroom8');
+      this.connection.ready.then(() => {
+        console.log('> fully encrypted')
+      })
     },
     connect: function(){
-      this.connection = new SocketConnection();
-      this.connection.connect('testroom6');
+      this.connection = new ChatConnection();
+      this.connection.connect('testroom8');
+      this.connection.ready.then(() => {
+        console.log('> fully encrypted')
+      })
     },
     sendTest: function(){
       this.connection.send(`test: ${new Date().toISOString()}`);
