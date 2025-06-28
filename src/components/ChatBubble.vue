@@ -14,6 +14,14 @@ export default {
     msgStr: function(){
       return this.message?.payload?.msg || '';
     },
+    timestamp: function(){
+      if(this.message?.timestamp){
+        const datetime = new Date(this.message.timestamp);
+        return datetime.toLocaleTimeString("en-US");
+      }
+
+      return '';
+    },
     isPeer: function(){
       return this.message?.role === ChatMessage.roles.PEER;
     }
@@ -28,6 +36,7 @@ export default {
     <div class="icon" v-if="isPeer"></div>
     <div class="msg-contents">
       <div class="response-canvas">{{ msgStr }}</div>
+      <div class="timestamp">{{ timestamp }}</div>
     </div>
   </div>
 </template>
@@ -49,6 +58,11 @@ export default {
       word-break: break-word;
     }
   }
+  .timestamp{
+    font-size: 11px;
+    color: gray;
+    margin-top: 5px;
+  }
   .icon{
     margin-top: 15px;
     margin-left: 10px;
@@ -61,7 +75,7 @@ export default {
   }
   &.user{
     display: block;
-    color: white;
+    color: gray;
     text-align: right;
     .response-canvas{
       display: inline-block;
