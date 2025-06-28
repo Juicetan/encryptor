@@ -45,6 +45,10 @@ export default {
       this.mode = 'create';
       this.joinKey = ObjUtil.guid();
       this.connection = new ChatConnection();
+      this.connection.evt.on(ChatConnection.events.RESOLVEFAILED, () => {
+        App.toast('Failed to resolve connection', 'error');
+      })
+
       this.connection.createRoom(this.joinKey);
       await this.connection.ready;
       console.log('> fully encrypted', this.connection.isSecured);
@@ -61,6 +65,10 @@ export default {
       this.connection.evt.on(ChatConnection.events.INVALIDJOIN, (roomID) => {
         App.toast(`Cannot join chat: invalid/expired room ID [${roomID}]`, 'error');
       });
+      this.connection.evt.on(ChatConnection.events.RESOLVEFAILED, () => {
+        App.toast('Failed to resolve connection', 'error');
+      });
+      
       this.connection.connect(this.joinKey);
       await this.connection.ready;
       console.log('> fully encrypted', this.connection.isSecured);

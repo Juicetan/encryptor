@@ -18,7 +18,8 @@ export default class ChatConnection{
     MESSAGE: 'message',
     AUTHMESSAGE: 'auth_message',
     AUTHDONE: 'auth_complete',
-    INVALIDJOIN: 'room_invalid'
+    INVALIDJOIN: 'room_invalid',
+    RESOLVEFAILED: 'failed_ice'
   }
 
   constructor(){
@@ -162,6 +163,14 @@ export default class ChatConnection{
           room: this.roomID,
           candidate: candidate
         });
+      }
+    }
+
+    peer.oniceconnectionstatechange = () => {
+      const state = peer.iceConnectionState;
+      console.log(`ICE connection state changed to: ${state}`);
+      if(state === 'disconnected'){
+        this.evt.emit(ChatConnection.events.RESOLVEFAILED, state);
       }
     }
 
