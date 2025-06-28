@@ -1,8 +1,9 @@
 import ObjUtil from "../utils/obj";
 
 class ChatMessage{
-  static type = {
+  static types = {
     AUTH: 'auth-handshake',
+    AUTHDONE: 'auth-complete',
     MSG: 'message'
   }
 
@@ -13,7 +14,7 @@ class ChatMessage{
   fromJSON(obj){
     obj = obj || {}
     this.id = obj.id || ObjUtil.guid();
-    this.type = obj.type || ChatMessage.type.MSG;
+    this.type = obj.type || ChatMessage.types.MSG;
     this.payload = obj.payload;
     this.timestamp = obj.timestamp ? new Date(obj.timestamp) : new Date();
     return this;
@@ -26,6 +27,10 @@ class ChatMessage{
       payload: this.payload,
       timestamp: this.timestamp.toISOString()
     }
+  }
+
+  toJSONStr(){
+    return JSON.stringify(this.toJSON())
   }
 
   serialize(){
