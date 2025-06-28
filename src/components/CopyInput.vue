@@ -82,7 +82,7 @@ export default {
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss">
 @use "sass:color";
 @use "../assets/css/_mixins" as *;
 @use "../assets/css/_variables" as *;
