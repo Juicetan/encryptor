@@ -38,6 +38,7 @@ export default class ChatConnection{
       symKey: this.symKey
     })
 
+    this.peerConnection = null;
     this.dataChannel = null;
     this.socket = io(SIGNALSERVERURL);
     if(this.socket.connected){
@@ -56,6 +57,11 @@ export default class ChatConnection{
 
     this.socket.on('room-full', () => {
       console.log('> room full')
+    });
+
+    this.ready.then(() => {
+      this.socket.disconnect()
+      this.socket = null;
     });
   }
 
@@ -76,11 +82,11 @@ export default class ChatConnection{
     this.connectionReady.then(() => {
       this.chatRoomReady.then(() => {
         console.log('> creating peer connection')
-        let peerConnection = this.createPeerConnection();
+        this.peerConnection = this.createPeerConnection();
         this.socket.on('offer', async (offer) => {
-          await peerConnection.setRemoteDescription(offer);
-          const answer = await peerConnection.createAnswer();
-          await peerConnection.setLocalDescription(answer);
+          await this.peerConnection.setRemoteDescription(offer);
+          const answer = await this.peerConnection.createAnswer();
+          await this.peerConnection.setLocalDescription(answer);
           this.socket.emit('answer', { 
             room: roomID, 
             answer: answer
@@ -88,12 +94,25 @@ export default class ChatConnection{
         });
   
         this.socket.on('ice-candidate', (candidate) => {
-          peerConnection.addIceCandidate(candidate);
+          this.peerConnection.addIceCandidate(candidate);
         });
       });
 
       this.socket.emit('join', roomID);
     });
+  }
+
+  disconnect(){
+    this.dataChannel?.close();
+    this.dataChannel = null;
+
+    setTimeout(() => {
+      this.peerConnection?.close();
+      this.peerConnection = null;
+    }, 100);
+
+    this.socket?.disconnect();
+    this.socket = null
   }
 
   createRoom(roomID){
@@ -108,13 +127,13 @@ export default class ChatConnection{
   }
 
   async createOffer(){
-    let peerConnection = this.createPeerConnection();
-    this.dataChannel = peerConnection.createDataChannel('chat');
+    this.peerConnection = this.createPeerConnection();
+    this.dataChannel = this.peerConnection.createDataChannel('chat');
     console.log('> created data channel', this.dataChannel);
     this.setupDataChannel(this.dataChannel);
 
-    const offer = await peerConnection.createOffer();
-    await peerConnection.setLocalDescription(offer);
+    const offer = await this.peerConnection.createOffer();
+    await this.peerConnection.setLocalDescription(offer);
     console.log('> emit offer');
     this.socket.emit('offer', { 
       room: this.roomID, 
@@ -123,12 +142,12 @@ export default class ChatConnection{
 
     this.socket.on('ice-candidate', (candidate) => {
       console.log('> received ice candidate');
-      peerConnection.addIceCandidate(candidate);
+      this.peerConnection.addIceCandidate(candidate);
     });
 
     this.socket.on('answer', (answer) => {
       console.log('> received answer');
-      peerConnection.setRemoteDescription(answer);
+      this.peerConnection.setRemoteDescription(answer);
     });
   }
 
@@ -155,11 +174,15 @@ export default class ChatConnection{
   async resolveMsg(str){
     try{
       const json = JSON.parse(str);
-      return new ChatMessage(json);
+      const incomingMsg = new ChatMessage(json);
+      incomingMsg.role = ChatMessage.roles.PEER;
+      return incomingMsg;
     } catch(e){
       const plainText = await this.cryptor.decrypt(str);
       const json = JSON.parse(plainText);
-      return new ChatMessage(json); 
+      const incomingMsg = new ChatMessage(json);
+      incomingMsg.role = ChatMessage.roles.PEER; 
+      return incomingMsg;
     }
   }
 
@@ -181,6 +204,10 @@ export default class ChatConnection{
         this.evt.emit(ChatConnection.events.MESSAGE, incomingMsg);
       }
     };
+
+    this.dataChannel.onclose = async (e) => {
+      console.log('> channel closed');
+    }
   }
 
   authHandshake(){
@@ -219,6 +246,7 @@ export default class ChatConnection{
     console.log('> sending auth', this.symKey.keyPair.public);
     this.dataChannel.send(new ChatMessage({
       type: ChatMessage.types.AUTH,
+      role: ChatMessage.roles.PEER,
       payload: {
         public: this.symKey.keyPair.public
       }
@@ -229,6 +257,7 @@ export default class ChatConnection{
     console.log('> sending auth done');
     this.dataChannel.send(new ChatMessage({
       type: ChatMessage.types.AUTHDONE,
+      role: ChatMessage.roles.PEER,
       payload: {
         done: true
       }
