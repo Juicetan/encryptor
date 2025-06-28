@@ -184,16 +184,19 @@ export default {
     margin: 0 auto;
     display: flex;
     flex-direction: column-reverse;
+    @media (max-width: 500px){
+      width: 100%;
+    }
   }
   .chat-input{
     flex: 0 0 auto;
     margin: 0 auto;
     max-width: 500px;
-    width: 500px;
+    width: 100%;
     justify-content: center;
     align-items: center;
     box-sizing: border-box;
-    padding: 10px 0 20px 0;
+    padding: 10px 15px 20px 15px;
     .inner-input{
       position: relative;
       display: grid;
