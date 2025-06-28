@@ -1,7 +1,8 @@
 import CryptoUtil from "../utils/cryptoutil";
 class Cryptor{
-  constructor(){
-    this.symKey = null;
+  constructor(opts){
+    opts = opts || {};
+    this.symKey = opts.symKey;
   }
   async encrypt(str){
     // initialization vector

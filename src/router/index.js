@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import SplashView from '../views/SplashView.vue'
 import DashboardView from '../views/DashboardView.vue';
 /* !!-- routes import start --!! */
+import ChatView from '../views/ChatView.vue';
 /* !!-- routes import end --!! */
 
 const router = createRouter({
@@ -24,6 +25,14 @@ const router = createRouter({
       }
     },
     /* !!-- routes start --!! */
+    {
+      path: '/chat',
+      name: 'chatView',
+      component: ChatView,
+      meta: {
+        transition: 'fade'
+      }
+    },
     /* !!-- routes end --!! */
     
     // {
