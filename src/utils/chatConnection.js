@@ -17,7 +17,8 @@ export default class ChatConnection{
   static events = {
     MESSAGE: 'message',
     AUTHMESSAGE: 'auth_message',
-    AUTHDONE: 'auth_complete'
+    AUTHDONE: 'auth_complete',
+    INVALIDJOIN: 'room_invalid'
   }
 
   constructor(){
@@ -57,6 +58,7 @@ export default class ChatConnection{
 
     this.socket.on('room-full', () => {
       console.log('> room full')
+      this.evt.emit(ChatConnection.events.INVALIDJOIN, this.roomID);
     });
 
     this.ready.then(() => {
