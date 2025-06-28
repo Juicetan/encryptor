@@ -32,7 +32,7 @@ export default class EventBus{
     }
 
     if(this.handlerMap[evtName].indexOf(handlerFn) < 0){
-      thishandlerMap[evtName].push(handlerFn);
+      this.handlerMap[evtName].push(handlerFn);
     } else{
       console.warn('> handler already registered', evtName, handlerFn);
     }
@@ -84,7 +84,7 @@ export default class EventBus{
   }
 
   once(evtName, handlerFn){
-    const proxyHandler = function(obj){
+    const proxyHandler = (obj) => {
       handlerFn(obj);
       this.off(evtName, proxyHandler);
     }
