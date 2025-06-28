@@ -174,7 +174,7 @@ export default {
   }
   .body{
     @include miniscroll(0);
-    flex: 1 0 auto;
+    flex: 1 1 auto;
     max-width: 500px;
     width: 500px;
     box-sizing: border-box;
