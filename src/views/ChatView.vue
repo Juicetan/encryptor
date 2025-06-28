@@ -4,15 +4,16 @@ import ChatConnection from '../utils/chatConnection';
 import ChatBubble from '../components/ChatBubble.vue';
 import CopyInput from '../components/CopyInput.vue';
 import ObjUtil from '../utils/obj';
+import QrField from '../components/QrField.vue';
 
 export default {
   components: {
     ChatBubble,
-    CopyInput
+    CopyInput,
+    QrField
   },
   beforeRouteEnter: function(to, from, next){
     next(vm => {
-      console.log('> uhoh', vm.$route);
       if(vm.$route?.params?.roomID){
         vm.joinKey = vm.$route.params.roomID;
         vm.mode = 'join';
@@ -120,7 +121,8 @@ export default {
             <div class="label">Room ID</div>
             <CopyInput v-model="joinKey"/>
             <div class="label">Join URL</div>
-            <CopyInput v-model="joinURL"/>
+            <CopyInput class="join-url-copy" v-model="joinURL"/>
+            <QrField :data-str="joinURL" />
             <div class="modal-status">Awaiting peer to join...</div>
             <div class="back-btn con-btn secondary" @click="reset">&lt; Back</div>
           </div>
@@ -241,7 +243,7 @@ export default {
       background-color: white;
       width: 400px;
       box-sizing: border-box;
-      margin: 0 15px;
+      margin: 15px;
       border-radius: 10px;
       text-align: center;
       padding: 20px;
@@ -275,6 +277,9 @@ export default {
             display: flex;
             justify-content: center;
             align-items: center;
+          }
+          &.join-url-copy{
+            margin-bottom: 0;
           }
         }
         .con-btn{
