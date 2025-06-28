@@ -7,6 +7,11 @@ class ChatMessage{
     MSG: 'message'
   }
 
+  static roles = {
+    USER: 'user',
+    PEER: 'peer'
+  }
+
   constructor(opts){
     this.fromJSON(opts);
   }
@@ -15,6 +20,7 @@ class ChatMessage{
     obj = obj || {}
     this.id = obj.id || ObjUtil.guid();
     this.type = obj.type || ChatMessage.types.MSG;
+    this.role = obj.role || ChatMessage.roles.USER;
     this.payload = obj.payload;
     this.timestamp = obj.timestamp ? new Date(obj.timestamp) : new Date();
     return this;
