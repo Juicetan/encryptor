@@ -44,11 +44,6 @@ export default {
       return !this.connection || !this.connection.isSecured;
     },
   },
-  watch: {
-    'connection.stats.local': function(newVal, oldVal){
-      console.log('> wtf', newVal)
-    }
-  },
   methods: {
     createRoom: async function(){
       this.mode = 'create';
