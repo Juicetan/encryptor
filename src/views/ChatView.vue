@@ -122,6 +122,11 @@ export default {
         case 'relay':
           return '#FF6A00';
       }
+    },
+    gotoDash: function(){
+      this.$router.push({
+        name: 'dashboard'
+      })
     }
   },
 }
@@ -130,7 +135,13 @@ export default {
 <template>
   <div class="chat-view">
     <div class="header">
-      <img src="@/assets/images/appicon.png" alt="" class="icon">
+      <div class="icon-wrap">
+        <img src="@/assets/images/appicon.png" alt="" class="icon">
+        <div class="menu-dropdown">
+          <div class="menu-opt" @click="reset">New Chat</div>
+          <div class="menu-opt" @click="gotoDash">Payload Encryptor</div>
+        </div>
+      </div>
       <div class="title">
         <div>Encrypted Peer-to-Peer Chat</div>
         <div class="fine-print"> (Signaling server used only to establish initial connection between clients)</div>
@@ -202,13 +213,46 @@ export default {
     position: relative;
     flex: 0 0 auto;
     background-color: white;
-    .icon,.title{
+    .icon-wrap,.title{
       display: inline-block;
       vertical-align: middle;
     }
-    .icon{
+    .icon-wrap{
+      @include clickable;
       height: 60px;
       margin-right: 10px;
+      position: relative;
+      .menu-dropdown{
+        @include card;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        transform: translate3d(0, 95%, 0);
+        display: flex;
+        flex-direction: column;
+        width: 150px;
+        border-top: none;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.1s linear, visibility 0s linear 0.2s, transform 0.2s ease;
+        .menu-opt{
+          padding: 5px 10px;
+          &:hover{
+            background-color: whitesmoke;
+          }
+        }
+      }
+      .icon{
+        height: 100%;
+      }
+      &:hover{
+        .menu-dropdown{
+          opacity: 1;
+          visibility: visible;
+          transform: translate3d(0, 100%, 0);
+          transition: opacity 0.1s linear, visibility 0s linear 0s, transform 0.2s ease;
+        }
+      }
     }
     .title{
       font-size: 20px;
