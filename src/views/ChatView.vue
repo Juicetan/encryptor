@@ -222,6 +222,7 @@ export default {
       height: 60px;
       margin-right: 10px;
       position: relative;
+      z-index: 1;
       .menu-dropdown{
         @include card;
         position: absolute;
@@ -339,7 +340,7 @@ export default {
   }
   .init-modal{
     position: fixed;
-    top: 0;
+    top: 60px;
     bottom: 0;
     left: 0;
     right: 0;
@@ -455,7 +456,7 @@ export default {
     &:before{
       content: '';
       position: fixed;
-      top: 0;
+      top: 60px;
       bottom: 0;
       left: 0;
       right: 0;
