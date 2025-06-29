@@ -1,10 +1,10 @@
 html,body{
   margin: 0;
   padding: 0;
+  height: 100%;
 }
 body {
   position: relative;
-  height: 100%;
   color: var(--color-text);
   background: var(--color-background);
   transition: color 0.5s, background-color 0.5s;
