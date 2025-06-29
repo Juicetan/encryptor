@@ -5,12 +5,14 @@ import ChatBubble from '../components/ChatBubble.vue';
 import CopyInput from '../components/CopyInput.vue';
 import ObjUtil from '../utils/obj';
 import QrField from '../components/QrField.vue';
+import ToggleSwitch from '../components/ToggleSwitch.vue';
 
 export default {
   components: {
     ChatBubble,
     CopyInput,
-    QrField
+    QrField,
+    ToggleSwitch
   },
   beforeRouteEnter: function(to, from, next){
     next(vm => {
@@ -27,7 +29,8 @@ export default {
       msgStr: '',
       modalStatus: '',
       joinKey: null,
-      mode: null, //create, join
+      mode: null, //create, joinm
+      allowRelay: false
     }
   },
   computed: {
@@ -39,16 +42,26 @@ export default {
     },
     showInitModal: function(){
       return !this.connection || !this.connection.isSecured;
+    },
+  },
+  watch: {
+    'connection.stats.local': function(newVal, oldVal){
+      console.log('> wtf', newVal)
     }
   },
   methods: {
     createRoom: async function(){
       this.mode = 'create';
       this.joinKey = ObjUtil.guid();
-      this.connection = new ChatConnection();
+      this.connection = new ChatConnection({
+        allowRelay: this.allowRelay
+      });
       this.connection.evt.on(ChatConnection.events.RESOLVEFAILED, () => {
         App.toast('Failed to resolve connection', 'error');
       })
+      this.connection.evt.on(ChatConnection.events.GENERALERROR, (e) => {
+        App.toast(JSON.stringify(e), 'error');
+      });
 
       this.connection.createRoom(this.joinKey);
       await this.connection.ready;
@@ -62,12 +75,17 @@ export default {
       if(!this.joinKey){
         return;
       }
-      this.connection = new ChatConnection();
+      this.connection = new ChatConnection({
+        allowRelay: this.allowRelay
+      });
       this.connection.evt.on(ChatConnection.events.INVALIDJOIN, (roomID) => {
         App.toast(`Cannot join chat: invalid/expired room ID [${roomID}]`, 'error');
       });
       this.connection.evt.on(ChatConnection.events.RESOLVEFAILED, () => {
         App.toast('Failed to resolve connection', 'error');
+      });
+      this.connection.evt.on(ChatConnection.events.GENERALERROR, (e) => {
+        App.toast(JSON.stringify(e), 'error');
       });
 
       this.connection.connect(this.joinKey);
@@ -100,6 +118,16 @@ export default {
       this.msgStr = '';
       this.connection.send(outgoingMsg);
     },
+    statusColor: function(value){
+      switch(value){
+        case 'host':
+        case 'srflx':
+        case 'prflx':
+          return '#267F00';
+        case 'relay':
+          return '#FF6A00';
+      }
+    }
   },
 }
 </script>
@@ -111,6 +139,16 @@ export default {
       <div class="title">
         <div>Encrypted Peer-to-Peer Chat</div>
         <div class="fine-print"> (Signaling server used only to establish initial connection between clients)</div>
+      </div>
+      <div class="connection-stats" v-if="!showInitModal">
+        <div class="local peer">
+          <div class="label">Local</div>
+          <div class="value" :style="{backgroundColor:statusColor(connection.stats.local)}">{{ connection.stats.local }}</div>
+        </div>  
+        <div class="remote peer">
+          <div class="label">Remote</div>  
+          <div class="value" :style="{backgroundColor:statusColor(connection.stats.remote)}">{{ connection.stats.remote }}</div>
+        </div>
       </div>
     </div>
     <div class="body chat-log">
@@ -148,6 +186,7 @@ export default {
             <div class="con-btn" @click="createRoom">Create Chat</div>
             <div class="con-btn" @click="mode = 'join'">Join Chat</div>
           </div>
+          <ToggleSwitch class="relay setting" label="Allow relay" v-model="allowRelay" v-if="!mode"/>
         </div>
       </div>
     </div>
@@ -165,6 +204,7 @@ export default {
   flex-direction: column;
   overflow: hidden;
   .header{
+    position: relative;
     flex: 0 0 auto;
     background-color: white;
     .icon,.title{
@@ -181,6 +221,28 @@ export default {
       .fine-print{
         font-size: 10px;
         line-height: 14px;
+      }
+    }
+    .connection-stats{
+      @include card;
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      border-top: none;
+      border-radius: 0 0 10px 10px;
+      padding-left: 10px;
+      transform: translate3d(0,100%,0);
+      overflow: hidden;
+      .peer{
+        position: relative;
+        display: flex;
+        .label,.value{
+          padding: 5px;
+        }
+        .value{
+          color: white;
+        }
       }
     }
   }
@@ -320,6 +382,33 @@ export default {
           }
           &:hover{
             background-color: darken($color-brightblue, 5%);
+          }
+        }
+      }
+      .setting{
+        &.relay{
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-top: 40px;
+          .toggle-label{
+            font-weight: normal;
+          }
+          &:after{
+            @include card;
+            content: 'Relay server used for complex networking situations preventing direct connection (eg. mobile networks)';
+            position: absolute;
+            display: none;
+            bottom: 0;
+            left: -50%;
+            width: 300px;
+            transform: translate3d(100%, 110%, 0);
+          }
+          &:hover{
+            &:after{
+              display: block;
+            }
           }
         }
       }

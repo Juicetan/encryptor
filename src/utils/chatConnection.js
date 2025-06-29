@@ -5,9 +5,10 @@ import SymmetricKey from '../models/symmetric-key';
 import Cryptor from '../models/cryptor';
 import ChatMessage from '../models/chat-message';
 import EventBus from './evt';
+import APIUtil from './api';
 
 const SIGNALSERVERURL = import.meta.env.VITE_SIGNALSERVERURL;
-const ICECONFIG = {
+const DEFAULTICECONFIG = {
   iceServers: [{ 
     urls: 'stun:stun.l.google.com:19302' 
   }]
@@ -19,15 +20,25 @@ export default class ChatConnection{
     AUTHMESSAGE: 'auth_message',
     AUTHDONE: 'auth_complete',
     INVALIDJOIN: 'room_invalid',
-    RESOLVEFAILED: 'failed_ice'
+    RESOLVEFAILED: 'failed_ice',
+    GENERALERROR: 'general_error'
   }
 
-  constructor(){
+  constructor(opts){
+    opts = opts || {};
+    this.allowRelay = opts.allowRelay || false;
+    this._resolvedIceConfig = JSON.parse(JSON.stringify(DEFAULTICECONFIG));
+
     this._deferredConnection = new Deferred();
     this.connectionReady = this._deferredConnection.promise;
     this._deferredChatRoomReady = new Deferred();
     this.chatRoomReady = this._deferredChatRoomReady.promise;
     this._deferredReady = new Deferred();
+
+    this.stats = {
+      local: '',
+      remote: ''
+    }
 
     this.ready = this._deferredReady.promise;
 
@@ -65,6 +76,7 @@ export default class ChatConnection{
     this.ready.then(() => {
       this.socket.disconnect()
       this.socket = null;
+      this.resolveCandidates();
     });
   }
 
@@ -79,13 +91,28 @@ export default class ChatConnection{
   get isSecured(){
     return !!this.symKey.key;
   }
+
+  async resolveCandidates(){
+    const stats = await this.peerConnection?.getStats();
+    if(stats){
+      stats.forEach((report) => {
+        if(report.type === 'candidate-pair' && report.state === 'succeeded' && report.nominated){
+          const localCandidate = stats.get(report.localCandidateId);
+          const remoteCandidate = stats.get(report.remoteCandidateId);
+          this.stats.local = localCandidate.candidateType;
+          this.stats.remote = remoteCandidate.candidateType;
+          console.log('> stats set', this.stats);
+        }
+      })
+    }
+  }
   
   connect(roomID){
     this.roomID = roomID;
     this.connectionReady.then(() => {
-      this.chatRoomReady.then(() => {
+      this.chatRoomReady.then(async () => {
         console.log('> creating peer connection')
-        this.peerConnection = this.createPeerConnection();
+        this.peerConnection = await this.createPeerConnection();
         this.socket.on('offer', async (offer) => {
           await this.peerConnection.setRemoteDescription(offer);
           const answer = await this.peerConnection.createAnswer();
@@ -130,7 +157,7 @@ export default class ChatConnection{
   }
 
   async createOffer(){
-    this.peerConnection = this.createPeerConnection();
+    this.peerConnection = await this.createPeerConnection();
     this.dataChannel = this.peerConnection.createDataChannel('chat');
     console.log('> created data channel', this.dataChannel);
     this.setupDataChannel(this.dataChannel);
@@ -154,8 +181,28 @@ export default class ChatConnection{
     });
   }
 
-  createPeerConnection(){
-    const peer = new RTCPeerConnection(ICECONFIG);
+  async createPeerConnection(){
+    if(this.allowRelay){
+      try{
+        var response = await APIUtil.fetch(import.meta.env.VITE_TURNSERVERURL);
+        response = response.filter((obj) => {
+          return !obj?.urls?.includes('stun:');
+        });
+        this._resolvedIceConfig = {
+          iceServers: [
+            ...this._resolvedIceConfig.iceServers,
+            ...response
+          ]
+        };
+
+        console.log('> ice config updated', this._resolvedIceConfig);
+      } catch(e){
+        console.error('> failed to init TURN server', e);
+        this.evt.emit(ChatConnection.events.GENERALERROR, e);
+      }
+    }
+
+    const peer = new RTCPeerConnection(this._resolvedIceConfig);
     peer.onicecandidate = ({ candidate }) => {
       if(candidate){
         console.log('> emit ice candidate', candidate);

@@ -75,7 +75,7 @@ export default {
   }
   &.user{
     display: block;
-    color: gray;
+    color: black;
     text-align: right;
     .response-canvas{
       display: inline-block;
