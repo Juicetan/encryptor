@@ -193,7 +193,7 @@ export default {
             <div class="con-btn" @click="createRoom">Create Chat</div>
             <div class="con-btn" @click="mode = 'join'">Join Chat</div>
           </div>
-          <ToggleSwitch class="relay setting" label="Allow relay" v-model="allowRelay" v-if="!mode"/>
+          <ToggleSwitch class="relay setting" label="Allow relay" v-model="allowRelay" v-if="!mode || mode === 'join'"/>
         </div>
       </div>
     </div>
