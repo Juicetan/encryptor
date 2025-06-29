@@ -11,7 +11,7 @@ export default {
       // App or config initialization here
       setTimeout(function(){
         Router.replace({
-          name: 'dashboard'
+          name: 'chatView'
         })
       }, 700);
     })
