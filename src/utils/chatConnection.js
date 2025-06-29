@@ -144,7 +144,7 @@ export default class ChatConnection{
     });
 
     this.socket.on('ice-candidate', (candidate) => {
-      console.log('> received ice candidate');
+      console.log('> received ice candidate', candidate);
       this.peerConnection.addIceCandidate(candidate);
     });
 
@@ -158,7 +158,7 @@ export default class ChatConnection{
     const peer = new RTCPeerConnection(ICECONFIG);
     peer.onicecandidate = ({ candidate }) => {
       if(candidate){
-        console.log('> emit ice candidate');
+        console.log('> emit ice candidate', candidate);
         this.socket.emit('ice-candidate', {
           room: this.roomID,
           candidate: candidate
